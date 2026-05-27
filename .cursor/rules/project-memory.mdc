@@ -1,0 +1,38 @@
+---
+description: 芯小智项目长期记忆 — 产品定位与 Dify API 配置
+alwaysApply: true
+---
+
+# 芯小智（Xin Xiao Zhi）项目记忆
+
+## 产品定位
+
+- RISC-V 指令集专属智能助教 Web 端
+- 能力：回答 RISC-V/嵌入式专业问题；生成可在开发板直接使用的指令/汇编/C 代码
+- 智能体后端：Dify 平台（对话型，流式输出）
+- UI 参考 Apex AI 三栏布局；配色偏芯片/CPU 行业风（深海军蓝、金属灰、电蓝点缀）
+
+## Dify API 配置
+
+| 项 | 值 |
+|---|---|
+| Base URL | `http://188.18.18.149:5001/v1` |
+| API Key | `app-bm6ftUPvIXSfhq8fiJnvcxnB` |
+| 应用类型 | 对话型（Chat App） |
+| 流式输出 | 是（SSE，`response_mode: streaming`） |
+
+## 对接要点
+
+- 对话接口：`POST {BASE_URL}/chat-messages`
+- 鉴权：`Authorization: Bearer {API_KEY}`
+- 流式：读取 `data:` 行，解析 JSON 中 `answer` 字段增量拼接
+- 多轮：保存并回传 `conversation_id`
+- 前端运行时从 `.env.local` 读取（变量名见 `.env.example`），勿硬编码到可提交源码
+
+## 页面规划
+
+- 左侧：Logo、新建对话、导航、用户区
+- 主区：指令参考/常见问题、实用工具、智能体卡片
+- 底部：快捷 chips + 对话输入；代码块需 RISC-V/C 语法高亮
+- 前端技术栈：React 19 + Vite + Tailwind CSS 4
+- 启动：`npm install && npm run dev`
