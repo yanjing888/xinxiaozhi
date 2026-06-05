@@ -1,5 +1,5 @@
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { Copy, Check } from 'lucide-react'
 import { useState } from 'react'
 
@@ -20,13 +20,13 @@ export function CodeBlock({ language, children }: CodeBlockProps) {
   const lang = normalizeLanguage(language)
 
   return (
-    <div className="group relative my-3 overflow-hidden rounded-lg border border-border">
-      <div className="flex items-center justify-between border-b border-border bg-surface-muted px-4 py-2">
-        <span className="font-mono text-xs text-blue-accent">{lang}</span>
+    <div className="group relative my-3 overflow-hidden rounded-lg border border-slate-700">
+      <div className="flex items-center justify-between border-b border-slate-700 bg-slate-800 px-4 py-2">
+        <span className="font-mono text-xs text-electric">{lang}</span>
         <button
           type="button"
           onClick={handleCopy}
-          className="flex items-center gap-1 rounded px-2 py-1 text-xs text-text-muted transition-colors hover:bg-surface hover:text-text-primary"
+          className="flex items-center gap-1 rounded px-2 py-1 text-xs text-slate-400 transition-colors hover:bg-slate-700 hover:text-white"
         >
           {copied ? <Check size={12} /> : <Copy size={12} />}
           {copied ? '已复制' : '复制'}
@@ -34,12 +34,13 @@ export function CodeBlock({ language, children }: CodeBlockProps) {
       </div>
       <SyntaxHighlighter
         language={lang}
-        style={oneLight}
+        style={oneDark}
         customStyle={{
           margin: 0,
           padding: '1rem',
-          background: '#f8fafc',
+          background: '#0f172a',
           fontSize: '0.8125rem',
+          fontFamily: 'Consolas, "JetBrains Mono", monospace',
         }}
       >
         {children}

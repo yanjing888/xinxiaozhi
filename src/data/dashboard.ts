@@ -94,5 +94,4 @@ export const toolItems: ToolItem[] = [
 export const navItems = [
   { id: 'home', label: '工作台', icon: Cpu },
   { id: 'tools', label: '工具箱', icon: Terminal },
-  { id: 'history', label: '对话记录', icon: BookOpen },
 ]

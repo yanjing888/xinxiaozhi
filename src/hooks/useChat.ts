@@ -1,5 +1,6 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { sendChatMessage } from '../services/dify'
+import { loadUserSessions, saveUserSessions } from '../services/storage'
 import type { ChatMessage, ChatSession } from '../types/chat'
 
 function createId() {
@@ -15,14 +16,52 @@ function createSession(title = '新对话'): ChatSession {
   }
 }
 
-export function useChat() {
-  const [sessions, setSessions] = useState<ChatSession[]>([createSession()])
-  const [activeSessionId, setActiveSessionId] = useState(sessions[0].id)
+function getInitialState(userId: string | undefined) {
+  if (!userId) {
+    const session = createSession()
+    return { sessions: [session], activeSessionId: session.id }
+  }
+  const stored = loadUserSessions(userId)
+  if (stored && stored.sessions.length > 0) {
+    const activeExists = stored.sessions.some((s) => s.id === stored.activeSessionId)
+    return {
+      sessions: stored.sessions,
+      activeSessionId: activeExists ? stored.activeSessionId : stored.sessions[0].id,
+    }
+  }
+  const session = createSession()
+  return { sessions: [session], activeSessionId: session.id }
+}
+
+export function useChat(userId: string | undefined) {
+  const initialRef = useRef(getInitialState(userId))
+  const [sessions, setSessions] = useState<ChatSession[]>(initialRef.current.sessions)
+  const [activeSessionId, setActiveSessionId] = useState(initialRef.current.activeSessionId)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const streamingMsgRef = useRef<{ sessionId: string; messageId: string } | null>(null)
+  const userIdRef = useRef(userId)
 
   const activeSession = sessions.find((s) => s.id === activeSessionId) ?? sessions[0]
+
+  useEffect(() => {
+    if (userId !== userIdRef.current) {
+      userIdRef.current = userId
+      const initial = getInitialState(userId)
+      setSessions(initial.sessions)
+      setActiveSessionId(initial.activeSessionId)
+      setError(null)
+      setIsLoading(false)
+      abortRef.current?.abort()
+      abortRef.current = null
+    }
+  }, [userId])
+
+  useEffect(() => {
+    if (!userId || isLoading) return
+    saveUserSessions(userId, { sessions, activeSessionId })
+  }, [userId, sessions, activeSessionId, isLoading])
 
   const updateSession = useCallback((sessionId: string, updater: (s: ChatSession) => ChatSession) => {
     setSessions((prev) =>
@@ -43,19 +82,55 @@ export function useChat() {
     setError(null)
   }, [])
 
+  const deleteSession = useCallback(
+    (sessionId: string) => {
+      setSessions((prev) => {
+        const next = prev.filter((s) => s.id !== sessionId)
+        if (next.length === 0) {
+          const session = createSession()
+          setActiveSessionId(session.id)
+          return [session]
+        }
+        if (sessionId === activeSessionId) {
+          setActiveSessionId(next[0].id)
+        }
+        return next
+      })
+    },
+    [activeSessionId],
+  )
+
+  const clearStreamingFlag = useCallback(
+    (sessionId: string, messageId: string) => {
+      updateSession(sessionId, (s) => ({
+        ...s,
+        messages: s.messages.map((m) =>
+          m.id === messageId ? { ...m, streaming: false } : m,
+        ),
+      }))
+    },
+    [updateSession],
+  )
+
   const stopGeneration = useCallback(() => {
     abortRef.current?.abort()
     abortRef.current = null
     setIsLoading(false)
-  }, [])
+
+    const streaming = streamingMsgRef.current
+    if (streaming) {
+      clearStreamingFlag(streaming.sessionId, streaming.messageId)
+      streamingMsgRef.current = null
+    }
+  }, [clearStreamingFlag])
 
   const sendMessage = useCallback(
-    async (query: string, options?: { prefix?: string; startChat?: boolean }) => {
+    async (query: string, options?: { prefix?: string; sessionId?: string }) => {
       const trimmed = query.trim()
       if (!trimmed || isLoading) return
 
       const fullQuery = options?.prefix ? `${options.prefix}\n\n${trimmed}` : trimmed
-      const sessionId = activeSessionId
+      const sessionId = options?.sessionId ?? activeSessionId
 
       const userMsg: ChatMessage = {
         id: createId(),
@@ -87,6 +162,7 @@ export function useChat() {
 
       const controller = new AbortController()
       abortRef.current = controller
+      streamingMsgRef.current = { sessionId, messageId: assistantMsg.id }
 
       let accumulated = ''
 
@@ -105,19 +181,17 @@ export function useChat() {
               updatedAt: Date.now(),
             }))
           },
-          onConversationId: (conversationId) => {
-            updateSession(sessionId, (s) => ({ ...s, conversationId }))
+          onConversationId: (id) => {
+            updateSession(sessionId, (s) => ({ ...s, conversationId: id }))
           },
         })
 
-        updateSession(sessionId, (s) => ({
-          ...s,
-          messages: s.messages.map((m) =>
-            m.id === assistantMsg.id ? { ...m, streaming: false } : m,
-          ),
-        }))
+        clearStreamingFlag(sessionId, assistantMsg.id)
       } catch (e) {
-        if (controller.signal.aborted) return
+        if (controller.signal.aborted) {
+          clearStreamingFlag(sessionId, assistantMsg.id)
+          return
+        }
 
         const message = e instanceof Error ? e.message : '发送失败，请稍后重试'
         setError(message)
@@ -132,9 +206,10 @@ export function useChat() {
       } finally {
         setIsLoading(false)
         abortRef.current = null
+        streamingMsgRef.current = null
       }
     },
-    [activeSessionId, isLoading, updateSession],
+    [activeSessionId, isLoading, updateSession, clearStreamingFlag],
   )
 
   return {
@@ -145,6 +220,7 @@ export function useChat() {
     error,
     newSession,
     selectSession,
+    deleteSession,
     sendMessage,
     stopGeneration,
   }

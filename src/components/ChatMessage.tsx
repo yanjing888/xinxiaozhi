@@ -1,6 +1,7 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { CodeBlock } from './CodeBlock'
+import { StreamingIndicator } from './StreamingIndicator'
 import type { ChatMessage as ChatMessageType } from '../types/chat'
 import { Cpu, User } from 'lucide-react'
 
@@ -16,8 +17,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
       <div
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
           isUser
-            ? 'bg-blue-accent/10 text-blue-accent'
-            : 'bg-cyan-accent/10 text-cyan-accent'
+            ? 'bg-surface-muted text-text-secondary'
+            : 'bg-brand/10 text-brand'
         }`}
       >
         {isUser ? <User size={16} /> : <Cpu size={16} />}
@@ -26,7 +27,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
       <div
         className={`max-w-[80%] rounded-2xl px-4 py-3 ${
           isUser
-            ? 'bg-blue-accent text-white'
+            ? 'bg-brand/10 text-text-primary ring-1 ring-brand/15'
             : 'border border-border bg-surface text-text-primary shadow-sm'
         }`}
       >
@@ -47,7 +48,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
                   return (
                     <code
-                      className="rounded bg-surface-muted px-1.5 py-0.5 font-mono text-xs text-blue-accent"
+                      className="rounded bg-surface-muted px-1.5 py-0.5 font-mono text-xs text-brand"
                       {...props}
                     >
                       {children}
@@ -80,17 +81,17 @@ export function ChatMessage({ message }: ChatMessageProps) {
                 },
                 a({ href, children }) {
                   return (
-                    <a href={href} className="text-blue-accent underline hover:text-cyan-accent" target="_blank" rel="noreferrer">
+                    <a href={href} className="text-electric underline hover:text-brand" target="_blank" rel="noreferrer">
                       {children}
                     </a>
                   )
                 },
               }}
             >
-              {message.content || (message.streaming ? '▍' : '')}
+              {message.content}
             </ReactMarkdown>
-            {message.streaming && message.content && (
-              <span className="cursor-blink ml-0.5 inline-block text-blue-accent">▍</span>
+            {message.streaming && (
+              <StreamingIndicator hasContent={!!message.content} />
             )}
           </div>
         )}
