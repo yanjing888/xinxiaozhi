@@ -1,76 +1,81 @@
 import type { User } from '../types/auth'
 import {
-  findUserByUsername,
-  getCurrentUser,
-  saveUser,
-  setCurrentUser,
-} from './storage'
+  apiFetch,
+  clearAuth,
+  getStoredUser,
+  getToken,
+  setAuth,
+} from './api'
 
-function createId() {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-}
-
-function createSalt() {
-  return Array.from(crypto.getRandomValues(new Uint8Array(16)))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-}
-
-async function hashPassword(password: string, salt: string): Promise<string> {
-  const data = new TextEncoder().encode(salt + password)
-  const hash = await crypto.subtle.digest('SHA-256', data)
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
+interface AuthResponse {
+  user: User
+  token: string
 }
 
 export async function register(
   username: string,
   password: string,
 ): Promise<{ user: User } | { error: string }> {
-  const trimmed = username.trim()
-  if (!trimmed) return { error: '请输入用户名' }
-  if (trimmed.length < 2) return { error: '用户名至少 2 个字符' }
-  if (password.length < 6) return { error: '密码至少 6 位' }
-  if (findUserByUsername(trimmed)) return { error: '用户名已存在' }
-
-  const salt = createSalt()
-  const passwordHash = await hashPassword(password, salt)
-  const user: User = {
-    id: createId(),
-    username: trimmed,
-    createdAt: Date.now(),
+  try {
+    const data = await apiFetch<AuthResponse>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    })
+    setAuth(data.token, data.user)
+    return { user: data.user }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : '注册失败' }
   }
-
-  saveUser({ ...user, passwordHash, salt })
-  setCurrentUser(user)
-  return { user }
 }
 
 export async function login(
   username: string,
   password: string,
 ): Promise<{ user: User } | { error: string }> {
-  const trimmed = username.trim()
-  const stored = findUserByUsername(trimmed)
-  if (!stored) return { error: '用户名或密码错误' }
-
-  const passwordHash = await hashPassword(password, stored.salt)
-  if (passwordHash !== stored.passwordHash) return { error: '用户名或密码错误' }
-
-  const user: User = {
-    id: stored.id,
-    username: stored.username,
-    createdAt: stored.createdAt,
+  try {
+    const data = await apiFetch<AuthResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    })
+    setAuth(data.token, data.user)
+    return { user: data.user }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : '登录失败' }
   }
-  setCurrentUser(user)
-  return { user }
+}
+
+export async function resetPassword(
+  username: string,
+  newPassword: string,
+): Promise<{ message: string } | { error: string }> {
+  try {
+    const data = await apiFetch<{ success: boolean; message: string }>(
+      '/auth/reset-password',
+      {
+        method: 'POST',
+        body: JSON.stringify({ username, newPassword }),
+      },
+    )
+    return { message: data.message }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : '密码重置失败' }
+  }
 }
 
 export function logout() {
-  setCurrentUser(null)
+  clearAuth()
 }
 
-export function restoreSession(): User | null {
-  return getCurrentUser()
+export async function restoreSession(): Promise<User | null> {
+  const token = getToken()
+  if (!token) return null
+
+  try {
+    const data = await apiFetch<{ user: User }>('/auth/me')
+    setAuth(token, data.user)
+    return data.user
+  } catch {
+    clearAuth()
+    return getStoredUser<User>()
+  }
 }

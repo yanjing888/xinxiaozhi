@@ -1,21 +1,50 @@
-import { defineConfig, loadEnv } from 'vite'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite'
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '.', '')
-  const difyTarget = env.VITE_DIFY_BASE_URL?.replace(/\/v1\/?$/, '') || 'http://188.18.18.149:5001'
+interface PortsConfig {
+  frontendPort: number
+  backendPort: number
+}
 
-  return {
-    plugins: [react(), tailwindcss()],
-    server: {
-      proxy: {
-        '/api/dify': {
-          target: difyTarget,
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/dify/, '/v1'),
-        },
+function loadPortsConfig(): PortsConfig {
+  const defaults = { frontendPort: 5173, backendPort: 8081 }
+  try {
+    const raw = readFileSync(resolve(process.cwd(), 'config/ports.json'), 'utf-8')
+    const parsed = JSON.parse(raw) as Partial<PortsConfig>
+    return {
+      frontendPort: Number(parsed.frontendPort) || defaults.frontendPort,
+      backendPort: Number(parsed.backendPort) || defaults.backendPort,
+    }
+  } catch {
+    return defaults
+  }
+}
+
+const ports = loadPortsConfig()
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  server: {
+    port: ports.frontendPort,
+    host: true,
+    proxy: {
+      '/api': {
+        target: `http://localhost:${ports.backendPort}`,
+        changeOrigin: true,
       },
     },
-  }
+  },
+  preview: {
+    port: ports.frontendPort,
+    host: true,
+    proxy: {
+      '/api': {
+        target: `http://localhost:${ports.backendPort}`,
+        changeOrigin: true,
+      },
+    },
+  },
 })

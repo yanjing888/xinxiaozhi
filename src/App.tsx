@@ -22,20 +22,28 @@ function MainApp() {
   const getSidebarWidth = useCallback(() => sidebarWidthRef.current, [])
   const [view, setView] = useState<View>('home')
 
+  if (auth.bootstrapping) {
+    return (
+      <div className="flex h-full items-center justify-center text-sm text-text-secondary">
+        正在加载…
+      </div>
+    )
+  }
+
   if (!auth.user) {
     return <LoginModal auth={auth} />
   }
 
-  const handleNewChat = () => {
-    chat.newSession()
+  const handleNewChat = async () => {
+    await chat.newSession()
     setView('chat')
   }
 
-  const handleAskFromHome = (prompt: string, prefix?: string) => {
-    const sessionId = chat.newSession()
+  const handleAskFromHome = async (prompt: string, prefix?: string) => {
+    const sessionId = await chat.newSession()
     setView('chat')
     const text = prompt || '你好，请介绍一下你能帮我做什么'
-    chat.sendMessage(text, { ...(prefix ? { prefix } : {}), sessionId })
+    await chat.sendMessage(text, { ...(prefix ? { prefix } : {}), sessionId })
   }
 
   const handleLogout = () => {

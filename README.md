@@ -1,40 +1,94 @@
 # 芯小智 — RISC-V 智能助教 Web 端
 
-RISC-V 指令集专属智能助教，对接 Dify 对话型 API（流式输出）。
+RISC-V 指令集专属智能助教。前端 React + 后端 NestJS + MySQL，对话由 Dify 提供 AI 能力。
+
+## 架构
+
+```
+浏览器 → React (Vite) → NestJS API → MySQL
+                              ↘ Dify (流式对话)
+```
+
+## 端口配置（现场改这一处）
+
+编辑项目根目录 **`config/ports.json`**：
+
+```json
+{
+  "frontendPort": 5173,
+  "backendPort": 8081
+}
+```
+
+- 前端 Vite 开发服务器、代理目标端口均从此读取
+- 后端 API 监听端口、CORS 允许的前端地址均从此读取
+- 修改后需**重启**前后端服务
+
+若 `backend/.env` 中设置了 `PORT` 或 `CORS_ORIGIN`，将覆盖上述默认值。
 
 ## 快速启动
 
+### 1. 启动 MySQL
+
 ```bash
-# 安装依赖
-npm install
-
-# 配置 API（复制并填入 Key，若已有 .env.local 可跳过）
-cp .env.example .env.local
-
-# 启动开发服务器
-npm run dev
+docker compose up -d
 ```
 
-浏览器访问 `http://localhost:5173`
+### 2. 配置后端
 
-## 环境变量
+```bash
+cd backend
+cp .env.example .env
+# 编辑 .env，填入 DIFY_API_KEY、JWT_SECRET 等
+npm install
+```
 
-| 变量 | 说明 |
-|------|------|
-| `VITE_DIFY_BASE_URL` | Dify API 地址，如 `http://188.18.18.149:5001/v1` |
-| `VITE_DIFY_API_KEY` | Dify 应用 API Key |
+### 3. 启动前后端
 
-开发模式下请求通过 Vite 代理 `/api/dify` 转发，避免 CORS 问题。
+在项目根目录：
+
+```bash
+npm install
+npm run dev:all
+```
+
+- 前端：http://localhost:{frontendPort}（见 `config/ports.json`）
+- 后端 API：http://localhost:{backendPort}/api
+
+也可分开启动：
+
+```bash
+npm run dev:api   # 仅后端
+npm run dev       # 仅前端
+```
+
+### 4. 前端环境变量（可选）
+
+```bash
+cp .env.example .env.local
+```
+
+默认 `VITE_API_BASE_URL=/api`，开发时由 Vite 代理到 `8081`。
+
+## 数据库表
+
+| 表 | 说明 |
+|---|---|
+| `users` | 用户账号 |
+| `chat_sessions` | 对话会话 |
+| `chat_messages` | 消息记录 |
+
+开发环境 TypeORM `synchronize: true` 会自动建表。
 
 ## 技术栈
 
-- React 19 + TypeScript + Vite
-- Tailwind CSS 4
-- react-markdown + 语法高亮（RISC-V 汇编 / C）
+- 前端：React 19 + TypeScript + Vite + Tailwind CSS 4
+- 后端：NestJS + TypeORM + MySQL + JWT
+- AI：Dify 对话 API（Key 仅存后端）
 
 ## 构建
 
 ```bash
 npm run build
-npm run preview
+npm run build:api
 ```

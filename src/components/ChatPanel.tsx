@@ -131,12 +131,12 @@ export function ChatPanel({ chat }: ChatPanelProps) {
     const container = scrollRef.current
     if (!container) return
     container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
-  }, [chat.activeSession.messages, chat.isLoading])
+  }, [chat.activeSession?.messages, chat.isLoading])
 
   return (
     <PageShell className="min-h-0 flex-1">
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
-        {chat.activeSession.messages.length === 0 ? (
+        {!chat.activeSession || chat.activeSession.messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <div className="logo-ring mb-5 flex h-16 w-16 items-center justify-center rounded-2xl">
               <Cpu size={28} className="text-brand" />
@@ -160,7 +160,7 @@ export function ChatPanel({ chat }: ChatPanelProps) {
           </div>
         ) : (
           <div className="mx-auto flex max-w-3xl flex-col gap-6">
-            {chat.activeSession.messages.map((msg) => (
+            {chat.activeSession!.messages.map((msg) => (
               <ChatMessage key={msg.id} message={msg} />
             ))}
           </div>

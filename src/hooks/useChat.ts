@@ -1,67 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { sendChatMessage } from '../services/dify'
-import { loadUserSessions, saveUserSessions } from '../services/storage'
+import { streamChatMessage } from '../services/chatApi'
+import * as sessionsApi from '../services/sessions'
 import type { ChatMessage, ChatSession } from '../types/chat'
 
 function createId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 }
 
-function createSession(title = '新对话'): ChatSession {
-  return {
-    id: createId(),
-    title,
-    messages: [],
-    updatedAt: Date.now(),
-  }
-}
-
-function getInitialState(userId: string | undefined) {
-  if (!userId) {
-    const session = createSession()
-    return { sessions: [session], activeSessionId: session.id }
-  }
-  const stored = loadUserSessions(userId)
-  if (stored && stored.sessions.length > 0) {
-    const activeExists = stored.sessions.some((s) => s.id === stored.activeSessionId)
-    return {
-      sessions: stored.sessions,
-      activeSessionId: activeExists ? stored.activeSessionId : stored.sessions[0].id,
-    }
-  }
-  const session = createSession()
-  return { sessions: [session], activeSessionId: session.id }
-}
-
 export function useChat(userId: string | undefined) {
-  const initialRef = useRef(getInitialState(userId))
-  const [sessions, setSessions] = useState<ChatSession[]>(initialRef.current.sessions)
-  const [activeSessionId, setActiveSessionId] = useState(initialRef.current.activeSessionId)
+  const [sessions, setSessions] = useState<ChatSession[]>([])
+  const [activeSessionId, setActiveSessionId] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isHydrating, setIsHydrating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   const streamingMsgRef = useRef<{ sessionId: string; messageId: string } | null>(null)
   const userIdRef = useRef(userId)
 
-  const activeSession = sessions.find((s) => s.id === activeSessionId) ?? sessions[0]
-
-  useEffect(() => {
-    if (userId !== userIdRef.current) {
-      userIdRef.current = userId
-      const initial = getInitialState(userId)
-      setSessions(initial.sessions)
-      setActiveSessionId(initial.activeSessionId)
-      setError(null)
-      setIsLoading(false)
-      abortRef.current?.abort()
-      abortRef.current = null
-    }
-  }, [userId])
-
-  useEffect(() => {
-    if (!userId || isLoading) return
-    saveUserSessions(userId, { sessions, activeSessionId })
-  }, [userId, sessions, activeSessionId, isLoading])
+  const activeSession = sessions.find((s) => s.id === activeSessionId)
 
   const updateSession = useCallback((sessionId: string, updater: (s: ChatSession) => ChatSession) => {
     setSessions((prev) =>
@@ -69,8 +25,41 @@ export function useChat(userId: string | undefined) {
     )
   }, [])
 
-  const newSession = useCallback(() => {
-    const session = createSession()
+  const loadSessions = useCallback(async () => {
+    setIsHydrating(true)
+    setError(null)
+    try {
+      const list = await sessionsApi.fetchSessions()
+      setSessions(list)
+      setActiveSessionId(list[0]?.id ?? '')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '加载对话失败')
+      setSessions([])
+      setActiveSessionId('')
+    } finally {
+      setIsHydrating(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (userId !== userIdRef.current) {
+      userIdRef.current = userId
+      abortRef.current?.abort()
+      abortRef.current = null
+      setIsLoading(false)
+
+      if (!userId) {
+        setSessions([])
+        setActiveSessionId('')
+        return
+      }
+
+      void loadSessions()
+    }
+  }, [userId, loadSessions])
+
+  const newSession = useCallback(async () => {
+    const session = await sessionsApi.createSession()
     setSessions((prev) => [session, ...prev])
     setActiveSessionId(session.id)
     setError(null)
@@ -83,21 +72,15 @@ export function useChat(userId: string | undefined) {
   }, [])
 
   const deleteSession = useCallback(
-    (sessionId: string) => {
-      setSessions((prev) => {
-        const next = prev.filter((s) => s.id !== sessionId)
-        if (next.length === 0) {
-          const session = createSession()
-          setActiveSessionId(session.id)
-          return [session]
-        }
-        if (sessionId === activeSessionId) {
-          setActiveSessionId(next[0].id)
-        }
-        return next
-      })
+    async (sessionId: string) => {
+      await sessionsApi.deleteSession(sessionId)
+      const remaining = sessions.filter((s) => s.id !== sessionId)
+      setSessions(remaining)
+      if (sessionId === activeSessionId) {
+        setActiveSessionId(remaining[0]?.id ?? '')
+      }
     },
-    [activeSessionId],
+    [sessions, activeSessionId],
   )
 
   const clearStreamingFlag = useCallback(
@@ -127,56 +110,78 @@ export function useChat(userId: string | undefined) {
   const sendMessage = useCallback(
     async (query: string, options?: { prefix?: string; sessionId?: string }) => {
       const trimmed = query.trim()
-      if (!trimmed || isLoading) return
+      if (!trimmed || isLoading || !userId) return
 
-      const fullQuery = options?.prefix ? `${options.prefix}\n\n${trimmed}` : trimmed
-      const sessionId = options?.sessionId ?? activeSessionId
+      let sessionId = options?.sessionId ?? activeSessionId
+      if (!sessionId) {
+        const session = await sessionsApi.createSession()
+        setSessions((prev) => [session, ...prev])
+        setActiveSessionId(session.id)
+        sessionId = session.id
+      }
+
+      const tempUserId = createId()
+      const tempAssistantId = createId()
 
       const userMsg: ChatMessage = {
-        id: createId(),
+        id: tempUserId,
         role: 'user',
-        content: fullQuery,
+        content: options?.prefix ? `${options.prefix}\n\n${trimmed}` : trimmed,
       }
 
       const assistantMsg: ChatMessage = {
-        id: createId(),
+        id: tempAssistantId,
         role: 'assistant',
         content: '',
         streaming: true,
       }
 
-      let conversationId: string | undefined
-
-      updateSession(sessionId, (s) => {
-        conversationId = s.conversationId
-        return {
-          ...s,
-          title: s.messages.length === 0 ? trimmed.slice(0, 20) : s.title,
-          messages: [...s.messages, userMsg, assistantMsg],
-          updatedAt: Date.now(),
-        }
-      })
+      updateSession(sessionId, (s) => ({
+        ...s,
+        title: s.messages.length === 0 ? trimmed.slice(0, 20) : s.title,
+        messages: [...s.messages, userMsg, assistantMsg],
+        updatedAt: Date.now(),
+      }))
 
       setIsLoading(true)
       setError(null)
 
       const controller = new AbortController()
       abortRef.current = controller
-      streamingMsgRef.current = { sessionId, messageId: assistantMsg.id }
 
+      let assistantMessageId = tempAssistantId
+      streamingMsgRef.current = { sessionId, messageId: assistantMessageId }
       let accumulated = ''
 
+      const replaceMessageId = (oldId: string, newId: string, role: 'user' | 'assistant') => {
+        updateSession(sessionId, (s) => ({
+          ...s,
+          messages: s.messages.map((m) =>
+            m.id === oldId ? { ...m, id: newId, role } : m,
+          ),
+        }))
+        if (role === 'assistant') {
+          assistantMessageId = newId
+          streamingMsgRef.current = { sessionId, messageId: newId }
+        }
+      }
+
       try {
-        await sendChatMessage({
-          query: fullQuery,
-          conversationId,
+        await streamChatMessage({
+          sessionId,
+          query: trimmed,
+          prefix: options?.prefix,
           signal: controller.signal,
+          onStarted: ({ userMessageId, assistantMessageId: serverAssistantId }) => {
+            replaceMessageId(tempUserId, userMessageId, 'user')
+            replaceMessageId(tempAssistantId, serverAssistantId, 'assistant')
+          },
           onChunk: (chunk) => {
             accumulated += chunk
             updateSession(sessionId, (s) => ({
               ...s,
               messages: s.messages.map((m) =>
-                m.id === assistantMsg.id ? { ...m, content: accumulated } : m,
+                m.id === assistantMessageId ? { ...m, content: accumulated } : m,
               ),
               updatedAt: Date.now(),
             }))
@@ -184,12 +189,30 @@ export function useChat(userId: string | undefined) {
           onConversationId: (id) => {
             updateSession(sessionId, (s) => ({ ...s, conversationId: id }))
           },
+          onDone: () => {
+            clearStreamingFlag(sessionId, assistantMessageId)
+          },
+          onError: (message, content) => {
+            if (content) {
+              updateSession(sessionId, (s) => ({
+                ...s,
+                messages: s.messages.map((m) =>
+                  m.id === assistantMessageId
+                    ? { ...m, content, streaming: false }
+                    : m,
+                ),
+              }))
+            } else {
+              setError(message)
+              clearStreamingFlag(sessionId, assistantMessageId)
+            }
+          },
         })
 
-        clearStreamingFlag(sessionId, assistantMsg.id)
+        clearStreamingFlag(sessionId, assistantMessageId)
       } catch (e) {
         if (controller.signal.aborted) {
-          clearStreamingFlag(sessionId, assistantMsg.id)
+          clearStreamingFlag(sessionId, assistantMessageId)
           return
         }
 
@@ -198,7 +221,7 @@ export function useChat(userId: string | undefined) {
         updateSession(sessionId, (s) => ({
           ...s,
           messages: s.messages.map((m) =>
-            m.id === assistantMsg.id
+            m.id === assistantMessageId
               ? { ...m, content: `⚠️ ${message}`, streaming: false }
               : m,
           ),
@@ -209,7 +232,7 @@ export function useChat(userId: string | undefined) {
         streamingMsgRef.current = null
       }
     },
-    [activeSessionId, isLoading, updateSession, clearStreamingFlag],
+    [activeSessionId, isLoading, userId, updateSession, clearStreamingFlag],
   )
 
   return {
@@ -217,6 +240,7 @@ export function useChat(userId: string | undefined) {
     activeSession,
     activeSessionId,
     isLoading,
+    isHydrating,
     error,
     newSession,
     selectSession,

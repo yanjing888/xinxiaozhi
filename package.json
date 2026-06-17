@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "npm run start:dev --prefix backend",
+    "dev:all": "concurrently -n web,api -c cyan,magenta \"npm run dev\" \"npm run dev:api\"",
     "build": "tsc -b && vite build",
+    "build:api": "npm run build --prefix backend",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -20,8 +23,10 @@
     "@tailwindcss/vite": "^4.1.8",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "@types/node": "^22.14.0",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^4.4.1",
+    "concurrently": "^9.2.1",
     "tailwindcss": "^4.1.8",
     "typescript": "~5.8.3",
     "vite": "^6.3.5"

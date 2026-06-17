@@ -98,6 +98,9 @@ export function Sidebar({
           最近对话
         </p>
         <div className="flex flex-col gap-0.5">
+          {sessions.length === 0 ? (
+            <p className="px-3 py-2 text-xs text-text-muted">暂无对话</p>
+          ) : null}
           {sessions.map((session) => {
             const isActive = session.id === activeSessionId && view === 'chat'
             return (
@@ -124,19 +127,17 @@ export function Sidebar({
                   <MessageSquare size={12} className="shrink-0" />
                   <span className="truncate">{session.title}</span>
                 </button>
-                {sessions.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onDeleteSession(session.id)
-                    }}
-                    className="mr-1 rounded p-1 text-text-muted opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
-                    title="删除对话"
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onDeleteSession(session.id)
+                  }}
+                  className="mr-1 rounded p-1 text-text-muted opacity-0 transition-opacity hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+                  title="删除对话"
+                >
+                  <Trash2 size={12} />
+                </button>
               </div>
             )
           })}
@@ -150,7 +151,7 @@ export function Sidebar({
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm text-text-primary">{user.username}</p>
-            <p className="truncate text-[10px] text-text-muted">对话已本地保存</p>
+            <p className="truncate text-[10px] text-text-muted">对话已云端保存</p>
           </div>
           <button
             type="button"
