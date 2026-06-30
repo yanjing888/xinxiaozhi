@@ -29,6 +29,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: ports.frontendPort,
+    strictPort: true,
     host: true,
     proxy: {
       '/api': {
@@ -39,6 +40,7 @@ export default defineConfig({
   },
   preview: {
     port: ports.frontendPort,
+    strictPort: true,
     host: true,
     proxy: {
       '/api': {

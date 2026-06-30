@@ -20,7 +20,7 @@ async function bootstrap() {
     }),
   )
 
-  const port = Number(process.env.PORT) || ports.backendPort
+  const port = ports.backendPort
   await app.listen(port)
   console.log(`芯小智 API 运行于 http://localhost:${port}/api`)
   console.log(`前端端口配置: ${ports.frontendPort}（见 config/ports.json）`)
