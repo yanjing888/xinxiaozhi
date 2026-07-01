@@ -77,7 +77,7 @@ function MainApp() {
       <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         {view === 'home' && (
           <PageShell className="min-h-0 flex-1 overflow-hidden">
-            <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden">
+            <div className="flex min-h-0 flex-1 items-start justify-center overflow-y-auto py-6 md:items-center md:py-0">
               <Dashboard onPromptSelect={handleAskFromHome} />
             </div>
             <HomeChatBar chat={chat} onSend={handleAskFromHome} />

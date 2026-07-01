@@ -57,7 +57,7 @@ export function ChatInput({
               type="button"
               onClick={() => onSend(chip.prompt)}
               disabled={isLoading}
-              className="feature-tag rounded-full transition-all hover:border-electric/40 hover:text-electric disabled:opacity-50"
+              className="feature-tag rounded-md transition-all hover:border-electric/40 hover:text-electric disabled:opacity-50"
             >
               {chip.label}
             </button>
@@ -67,7 +67,7 @@ export function ChatInput({
 
       <div className={`px-4 ${compact ? 'pb-3 pt-1' : 'pb-5 pt-3'}`}>
         <div
-          className={`input-field mx-auto flex w-full ${inputMaxWidth} items-end gap-3 rounded-2xl border border-border/50 bg-white/95 shadow-sm ${compact ? 'p-2.5' : 'p-3'}`}
+          className={`input-field mx-auto flex w-full ${inputMaxWidth} items-end gap-3 rounded-lg border border-border/80 bg-white/95 shadow-sm ${compact ? 'p-2.5' : 'p-3'}`}
         >
           <textarea
             ref={textareaRef}
@@ -82,14 +82,14 @@ export function ChatInput({
           <div className="flex items-center gap-1 pb-1">
             <button
               type="button"
-              className="rounded-lg p-2 text-text-muted transition-colors hover:bg-surface-muted hover:text-brand"
+              className="rounded-md p-2 text-text-muted transition-colors hover:bg-surface-muted hover:text-brand"
               title="上传文件（待接入）"
             >
               <Paperclip size={18} />
             </button>
             <button
               type="button"
-              className="rounded-lg p-2 text-text-muted transition-colors hover:bg-surface-muted hover:text-brand"
+              className="rounded-md p-2 text-text-muted transition-colors hover:bg-surface-muted hover:text-brand"
               title="上传图片（待接入）"
             >
               <ImageIcon size={18} />
@@ -98,7 +98,7 @@ export function ChatInput({
               <button
                 type="button"
                 onClick={onStop}
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-500 transition-colors hover:bg-red-100"
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-red-500 transition-colors hover:bg-red-100"
               >
                 <Square size={16} fill="currentColor" />
               </button>
@@ -107,7 +107,7 @@ export function ChatInput({
                 type="button"
                 onClick={handleSubmit}
                 disabled={!input.trim()}
-                className="btn-brand flex h-9 w-9 items-center justify-center rounded-xl disabled:opacity-40"
+                className="btn-brand flex h-9 w-9 items-center justify-center rounded-lg disabled:opacity-40"
               >
                 <Send size={16} />
               </button>
@@ -169,12 +169,12 @@ export function ChatPanel({ chat }: ChatPanelProps) {
       <div ref={scrollRef} onScroll={handleScroll} className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
         {!chat.activeSession || chat.activeSession.messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <div className="logo-ring mb-5 flex h-16 w-16 items-center justify-center rounded-2xl">
+            <div className="logo-ring mb-5 flex h-14 w-14 items-center justify-center rounded-lg">
               <Cpu size={28} className="text-brand" />
             </div>
-            <h2 className="mb-2 text-lg font-bold text-brand">开始与芯小智对话</h2>
-            <p className="mb-6 max-w-md text-sm text-text-secondary">
-              询问 RISC-V 指令含义、生成汇编代码、排查开发板调试问题
+            <h2 className="mb-2 text-lg font-bold text-text-primary">开始与芯小智对话</h2>
+            <p className="mb-6 max-w-md text-sm leading-relaxed text-text-secondary">
+              可以询问指令执行、CPU 数据通路、SystemVerilog 实现或上板排错
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {quickChips.slice(0, 3).map((chip) => (
@@ -182,7 +182,7 @@ export function ChatPanel({ chat }: ChatPanelProps) {
                   key={chip.label}
                   type="button"
                   onClick={() => chat.sendMessage(chip.prompt)}
-                  className="feature-tag rounded-full px-3 py-1.5 transition-colors hover:border-electric/40 hover:text-electric"
+                  className="feature-tag rounded-md px-3 py-1.5 transition-colors hover:border-electric/40 hover:text-electric"
                 >
                   {chip.label}
                 </button>

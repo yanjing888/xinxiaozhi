@@ -5,6 +5,7 @@ import {
   LogOut,
   Trash2,
 } from 'lucide-react'
+import type { CSSProperties } from 'react'
 import { navItems } from '../data/dashboard'
 import type { User } from '../types/auth'
 import type { ChatSession } from '../types/chat'
@@ -38,18 +39,18 @@ export function Sidebar({
 
   return (
     <aside
-      className="sidebar-panel flex h-full shrink-0 flex-col"
-      style={{ width }}
+      className="sidebar-panel flex w-full shrink-0 flex-col md:h-full md:w-[var(--sidebar-width)]"
+      style={{ '--sidebar-width': `${width}px` } as CSSProperties}
     >
       <div className="flex items-center gap-3 px-5 py-5">
-        <div className="logo-ring flex h-9 w-9 items-center justify-center rounded-xl">
+        <div className="logo-ring flex h-9 w-9 items-center justify-center rounded-lg">
           <Cpu size={18} className="text-brand" />
         </div>
         <div>
-          <h1 className="text-base font-bold tracking-wide text-brand">芯小智</h1>
-          <p className="text-[10px] text-text-muted">
+          <h1 className="text-base font-bold text-brand">芯小智</h1>
+          <p className="text-[10px] font-medium text-text-muted">
             RISC-V 智能助教
-            <span className="ml-1.5 rounded bg-surface-muted px-1 py-0.5 font-mono text-[9px] text-electric">RV32I</span>
+            <span className="ml-1.5 rounded bg-surface-muted px-1.5 py-0.5 font-mono text-[9px] text-electric">RV32I</span>
           </p>
         </div>
       </div>
@@ -58,7 +59,7 @@ export function Sidebar({
         <button
           type="button"
           onClick={onNewChat}
-          className="btn-brand flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium shadow-sm"
+          className="btn-brand flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium shadow-sm"
         >
           <Plus size={16} />
           新建对话
@@ -82,8 +83,8 @@ export function Sidebar({
               }}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                 isActive
-                  ? 'border-l-2 border-brand bg-brand/5 pl-[10px] font-medium text-brand'
-                  : 'border-l-2 border-transparent text-text-secondary hover:bg-surface-muted hover:text-text-primary'
+                  ? 'border-l-2 border-electric bg-brand/5 pl-[10px] font-semibold text-brand'
+                  : 'border-l-2 border-transparent text-text-secondary hover:bg-surface-muted/80 hover:text-text-primary'
               }`}
             >
               <Icon size={16} />
@@ -93,8 +94,8 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="mt-4 flex-1 overflow-y-auto px-3">
-        <p className="mb-2 px-3 text-[10px] font-medium uppercase tracking-wider text-text-muted">
+      <div className="mt-4 hidden flex-1 overflow-y-auto px-3 md:block">
+        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
           最近对话
         </p>
         <div className="flex flex-col gap-0.5">
@@ -109,7 +110,7 @@ export function Sidebar({
                 className={`group flex items-center rounded-lg transition-colors ${
                   isActive
                     ? 'border-l-2 border-electric bg-brand/5'
-                    : 'border-l-2 border-transparent hover:bg-surface-muted'
+                    : 'border-l-2 border-transparent hover:bg-surface-muted/80'
                 }`}
               >
                 <button
@@ -144,9 +145,9 @@ export function Sidebar({
         </div>
       </div>
 
-      <div className="border-t border-brand/8 p-4">
+      <div className="hidden border-t border-brand/10 p-4 md:block">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-medium text-white">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand text-xs font-medium text-white">
             {avatarChar}
           </div>
           <div className="min-w-0 flex-1">

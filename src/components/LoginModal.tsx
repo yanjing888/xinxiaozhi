@@ -10,7 +10,7 @@ interface LoginModalProps {
 type AuthMode = 'login' | 'register' | 'reset'
 
 const inputClass =
-  'w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition-colors placeholder:text-text-secondary/60 focus:border-brand focus:ring-2 focus:ring-brand/15'
+  'w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition-colors placeholder:text-text-secondary/60 focus:border-electric focus:ring-2 focus:ring-electric/15'
 
 export function LoginModal({ auth }: LoginModalProps) {
   const [mode, setMode] = useState<AuthMode>('login')
@@ -74,10 +74,10 @@ export function LoginModal({ auth }: LoginModalProps) {
       <LoginBackground />
 
       <div className="relative flex min-h-screen items-center justify-center px-6 py-10 lg:justify-end lg:px-16 xl:px-24">
-        <div className="w-full max-w-[440px] overflow-hidden rounded-2xl border border-white/60 bg-white/95 shadow-2xl shadow-slate-900/10 backdrop-blur-sm">
-          <div className="border-b border-border/60 bg-gradient-to-r from-brand/5 to-electric/5 px-8 py-6">
+        <div className="w-full max-w-[440px] overflow-hidden rounded-lg border border-white/70 bg-white/95 shadow-2xl shadow-slate-900/10 backdrop-blur-sm">
+          <div className="border-b border-border/70 bg-surface-secondary/80 px-8 py-6">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand text-white shadow-md shadow-brand/25">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand text-white shadow-md shadow-brand/25">
                 <ShieldCheck size={22} />
               </div>
               <div>
@@ -98,11 +98,11 @@ export function LoginModal({ auth }: LoginModalProps) {
                 返回登录
               </button>
             ) : (
-              <div className="mb-6 flex rounded-xl bg-surface-muted p-1">
+              <div className="mb-6 flex rounded-lg bg-surface-muted p-1">
                 <button
                   type="button"
                   onClick={() => switchMode('login')}
-                  className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all ${
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-sm font-medium transition-all ${
                     mode === 'login'
                       ? 'bg-white text-brand shadow-sm'
                       : 'text-text-secondary hover:text-text-primary'
@@ -114,7 +114,7 @@ export function LoginModal({ auth }: LoginModalProps) {
                 <button
                   type="button"
                   onClick={() => switchMode('register')}
-                  className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all ${
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-md py-2.5 text-sm font-medium transition-all ${
                     mode === 'register'
                       ? 'bg-white text-brand shadow-sm'
                       : 'text-text-secondary hover:text-text-primary'
@@ -190,7 +190,7 @@ export function LoginModal({ auth }: LoginModalProps) {
               )}
 
               {successMessage && (
-                <p className="rounded-xl bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-700">
+                <p className="rounded-lg bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-700">
                   {successMessage}
                   <button
                     type="button"
@@ -203,13 +203,13 @@ export function LoginModal({ auth }: LoginModalProps) {
               )}
 
               {auth.error && (
-                <p className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-600">{auth.error}</p>
+                <p className="rounded-lg bg-red-50 px-3.5 py-2.5 text-sm text-red-600">{auth.error}</p>
               )}
 
               <button
                 type="submit"
                 disabled={auth.loading || passwordMismatch}
-                className="btn-brand mt-2 flex w-full items-center justify-center rounded-xl py-3 text-sm font-medium disabled:opacity-50"
+                className="btn-brand mt-2 flex w-full items-center justify-center rounded-lg py-3 text-sm font-medium disabled:opacity-50"
               >
                 {auth.loading ? '处理中…' : submitLabel}
               </button>

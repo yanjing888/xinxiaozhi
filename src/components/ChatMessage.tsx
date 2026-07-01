@@ -18,16 +18,16 @@ export function ChatMessage({ message }: ChatMessageProps) {
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
           isUser
             ? 'bg-surface-muted text-text-secondary'
-            : 'bg-brand/10 text-brand'
+            : 'bg-white text-brand ring-1 ring-border'
         }`}
       >
         {isUser ? <User size={16} /> : <Cpu size={16} />}
       </div>
 
       <div
-        className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+        className={`max-w-[82%] rounded-lg px-4 py-3 ${
           isUser
-            ? 'bg-brand/10 text-text-primary ring-1 ring-brand/15'
+            ? 'bg-brand text-white shadow-sm'
             : 'border border-border bg-surface text-text-primary shadow-sm'
         }`}
       >
@@ -59,13 +59,13 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   return <>{children}</>
                 },
                 p({ children }) {
-                  return <p className="mb-2 text-sm leading-relaxed text-text-secondary last:mb-0">{children}</p>
+                  return <p className="mb-2 text-sm leading-7 text-text-secondary last:mb-0">{children}</p>
                 },
                 ul({ children }) {
-                  return <ul className="mb-2 list-disc pl-4 text-sm text-text-secondary">{children}</ul>
+                  return <ul className="mb-2 list-disc pl-5 text-sm leading-7 text-text-secondary">{children}</ul>
                 },
-                ol({ children }) {
-                  return <ol className="mb-2 list-decimal pl-4 text-sm text-text-secondary">{children}</ol>
+                ol({ children, ...props }) {
+                  return <ol {...props} className="mb-2 list-decimal pl-5 text-sm leading-7 text-text-secondary">{children}</ol>
                 },
                 li({ children }) {
                   return <li className="mb-1">{children}</li>
@@ -74,7 +74,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   return <h1 className="mb-2 text-base font-semibold text-text-primary">{children}</h1>
                 },
                 h2({ children }) {
-                  return <h2 className="mb-2 text-sm font-semibold text-text-primary">{children}</h2>
+                  return <h2 className="mb-2 mt-3 text-sm font-semibold text-text-primary first:mt-0">{children}</h2>
                 },
                 h3({ children }) {
                   return <h3 className="mb-1 text-sm font-medium text-text-primary">{children}</h3>

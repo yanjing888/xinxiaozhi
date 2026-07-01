@@ -20,13 +20,13 @@ export function CodeBlock({ language, children }: CodeBlockProps) {
   const lang = normalizeLanguage(language)
 
   return (
-    <div className="group relative my-3 overflow-hidden rounded-lg border border-slate-700">
+    <div className="group relative my-3 overflow-hidden rounded-lg border border-slate-700 shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-700 bg-slate-800 px-4 py-2">
         <span className="font-mono text-xs text-electric">{lang}</span>
         <button
           type="button"
           onClick={handleCopy}
-          className="flex items-center gap-1 rounded px-2 py-1 text-xs text-slate-400 transition-colors hover:bg-slate-700 hover:text-white"
+          className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-slate-400 transition-colors hover:bg-slate-700 hover:text-white"
         >
           {copied ? <Check size={12} /> : <Copy size={12} />}
           {copied ? '已复制' : '复制'}

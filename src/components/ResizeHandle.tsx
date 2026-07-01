@@ -45,7 +45,7 @@ export function ResizeHandle({ onResize, getWidth, min, max }: ResizeHandleProps
       role="separator"
       aria-orientation="vertical"
       aria-label="调整侧边栏宽度"
-      className={`resize-handle ${dragging ? 'is-dragging' : ''}`}
+      className={`resize-handle hidden md:block ${dragging ? 'is-dragging' : ''}`}
       onMouseDown={handleMouseDown}
     />
   )
