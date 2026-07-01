@@ -6,6 +6,6 @@ export class ResetPasswordDto {
   username!: string
 
   @IsString()
-  @MinLength(6)
+  @MinLength(1)
   newPassword!: string
 }

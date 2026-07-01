@@ -164,10 +164,9 @@ export function LoginModal({ auth }: LoginModalProps) {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="至少 6 位"
+                  placeholder="请输入密码"
                   autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                   required
-                  minLength={6}
                   className={inputClass}
                 />
               </div>
@@ -182,7 +181,6 @@ export function LoginModal({ auth }: LoginModalProps) {
                     placeholder="再次输入密码"
                     autoComplete="new-password"
                     required
-                    minLength={6}
                     className={inputClass}
                   />
                   {passwordMismatch && (
