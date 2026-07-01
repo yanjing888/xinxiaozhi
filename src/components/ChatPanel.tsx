@@ -126,16 +126,47 @@ interface ChatPanelProps {
 
 export function ChatPanel({ chat }: ChatPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const shouldFollowOutputRef = useRef(true)
+  const previousSessionIdRef = useRef<string | undefined>(undefined)
+  const previousMessageCountRef = useRef(0)
+
+  const activeSessionId = chat.activeSession?.id
+  const messages = chat.activeSession?.messages ?? []
+  const messageCount = messages.length
+  const lastMessageContent = messageCount > 0 ? messages[messageCount - 1].content : ''
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    const container = scrollRef.current
+    if (!container) return
+    container.scrollTo({ top: container.scrollHeight, behavior })
+  }
+
+  const handleScroll = () => {
+    const container = scrollRef.current
+    if (!container) return
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+    shouldFollowOutputRef.current = distanceFromBottom < 80
+  }
 
   useEffect(() => {
     const container = scrollRef.current
     if (!container) return
-    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
-  }, [chat.activeSession?.messages, chat.isLoading])
+
+    const sessionChanged = activeSessionId !== previousSessionIdRef.current
+    const messageAdded = messageCount > previousMessageCountRef.current
+
+    if (sessionChanged || messageAdded || shouldFollowOutputRef.current) {
+      scrollToBottom(sessionChanged ? 'auto' : 'smooth')
+      shouldFollowOutputRef.current = true
+    }
+
+    previousSessionIdRef.current = activeSessionId
+    previousMessageCountRef.current = messageCount
+  }, [activeSessionId, messageCount, lastMessageContent, chat.isLoading])
 
   return (
     <PageShell className="min-h-0 flex-1">
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
+      <div ref={scrollRef} onScroll={handleScroll} className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
         {!chat.activeSession || chat.activeSession.messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
             <div className="logo-ring mb-5 flex h-16 w-16 items-center justify-center rounded-2xl">

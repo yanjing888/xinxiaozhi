@@ -48,7 +48,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
                   return (
                     <code
-                      className="rounded bg-surface-muted px-1.5 py-0.5 font-mono text-xs text-brand"
+                      className="rounded bg-surface-muted px-1.5 py-0.5 font-sans text-sm font-medium text-brand"
                       {...props}
                     >
                       {children}
