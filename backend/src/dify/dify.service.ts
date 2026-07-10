@@ -34,21 +34,34 @@ export class DifyService {
       throw new InternalServerErrorException('未配置 DIFY_API_KEY')
     }
 
-    const response = await fetch(`${baseUrl.replace(/\/$/, '')}/chat-messages`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        inputs: {},
-        query,
-        response_mode: 'streaming',
-        conversation_id: conversationId ?? '',
-        user: userId,
-      }),
-      signal: handlers.signal,
-    })
+    const difyEndpoint = `${baseUrl.replace(/\/$/, '')}/chat-messages`
+    let response: Response
+
+    try {
+      response = await fetch(difyEndpoint, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputs: {},
+          query,
+          response_mode: 'streaming',
+          conversation_id: conversationId ?? '',
+          user: userId,
+        }),
+        signal: handlers.signal,
+      })
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') {
+        throw e
+      }
+
+      throw new InternalServerErrorException(
+        'Dify 应用服务连接不上，当前无法生成回答。请稍后重试，或联系管理员检查 Dify 服务状态、网络连接和 DIFY_BASE_URL 配置。',
+      )
+    }
 
     if (!response.ok) {
       const errText = await response.text()
