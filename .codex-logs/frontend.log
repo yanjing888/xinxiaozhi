@@ -1,0 +1,40 @@
+
+> xinxiaozhi@0.1.0 dev
+> vite
+
+
+  [32m[1mVITE[22m v6.4.2[39m  [2mready in [0m[1m5942[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://198.18.0.1:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://10.20.232.30:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.58:[1m5173[22m/[39m
+[2m02:12:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mbackend/src/dify/dify.service.ts[22m
+[2m02:13:26[22m [36m[1m[vite][22m[39m [32m.env.local changed, restarting server...[39m
+[2m02:13:26[22m [36m[1m[vite][22m[39m server restarted.
+[2m02:13:39[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/vite-env.d.ts[22m
+[2m02:15:31[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mbackend/src/dify/dify.service.ts[22m
+[2m02:15:45[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/vite-env.d.ts[22m
+[2m02:16:03[22m [36m[1m[vite][22m[39m [32m.env.local changed, restarting server...[39m
+[2m02:16:03[22m [36m[1m[vite][22m[39m server restarted.
+[2m02:21:34[22m [36m[1m[vite][22m[39m [32m.env.local changed, restarting server...[39m
+[2m02:21:34[22m [36m[1m[vite][22m[39m server restarted.
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-md/00-minimal-md-upload-test.md[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-md/00-芯小智补充知识库使用说明.md[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-md/01-ALU标准接口与可综合模板.md[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-md/02-student_top与virtual信号映射规则.md[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-md/03-MMIO地址映射与Bridge规则.md[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-md/04-MiniRV与控制信号生成约束.md[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-md/05-Vivado仿真综合上板检查清单.md[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-md/06-FPGA1213远程上板烧录案例.md[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-md/07-代码生成回答规范.md[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-md/08-芯小智Dify系统提示词-Chatflow版.md[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-txt/kb-00-usage-guide.txt[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-txt/kb-01-alu-standard-template.txt[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-txt/kb-02-student-top-virtual-mapping.txt[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-txt/kb-03-mmio-bridge-rules.txt[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-txt/kb-04-minirv-control-rules.txt[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-txt/kb-05-vivado-board-checklist.txt[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-txt/kb-06-fpga1213-remote-programming.txt[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-txt/kb-07-code-generation-response-rules.txt[22m
+[2m02:25:09[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mknowledge-base/dify-safe-txt/kb-08-dify-system-prompt-chatflow.txt[22m
