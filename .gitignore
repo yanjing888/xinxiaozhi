@@ -1,5 +1,6 @@
 .env.local
 backend/.env
+.codex-logs/
 node_modules/
 backend/node_modules/
 backend/dist/
