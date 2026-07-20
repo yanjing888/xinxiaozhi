@@ -152,7 +152,6 @@ export function Sidebar({
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm text-text-primary">{user.username}</p>
-            <p className="truncate text-[10px] text-text-muted">对话已云端保存</p>
           </div>
           <button
             type="button"

@@ -5,8 +5,6 @@ interface DashboardProps {
   onPromptSelect: (prompt: string, prefix?: string) => void
 }
 
-const featureTags = ['指令解释', '汇编生成', '开发调试']
-
 export function Dashboard({ onPromptSelect }: DashboardProps) {
   return (
     <div className="flex w-full flex-col gap-5 px-6">
@@ -19,10 +17,10 @@ export function Dashboard({ onPromptSelect }: DashboardProps) {
           <span className="ml-2 font-semibold text-electric">RISC-V</span>
         </h2>
         <p className="mx-auto max-w-lg text-sm leading-snug text-text-secondary">
-          面向指令集、单周期 CPU、SystemVerilog 与上板调试的智能助教
+          面向 RISC-V CPU、数字电路孪生平台、SystemVerilog 与上板调试的智能助教
         </p>
         <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-          {featureTags.map((tag) => (
+          {['RISC-V CPU', '孪生平台', '代码生成', '上板调试'].map((tag) => (
             <span key={tag} className="feature-tag rounded-full px-3 py-1">
               {tag}
             </span>

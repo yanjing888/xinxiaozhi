@@ -17,7 +17,7 @@ export function ChatInput({
   onSend,
   isLoading,
   onStop,
-  placeholder = '输入 RISC-V 相关问题，或描述你需要生成的指令代码…',
+  placeholder = '输入 RISC-V、数字电路或孪生平台相关问题…',
   compact = false,
 }: ChatInputProps) {
   const [input, setInput] = useState('')
