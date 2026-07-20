@@ -6,3 +6,8 @@ backend/node_modules/
 backend/dist/
 dist/
 .DS_Store
+
+# Local Dify knowledge-base generators and uploads (regenerate locally)
+knowledge-base/
+scripts/
+tmp/
